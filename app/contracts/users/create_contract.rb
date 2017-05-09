@@ -1,4 +1,5 @@
 #-- encoding: UTF-8
+
 #-- copyright
 # OpenProject is a project management system.
 # Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
@@ -31,15 +32,16 @@ require 'users/base_contract'
 
 module Users
   class CreateContract < BaseContract
-    validate :user_allowed_to_add
-    validate :authentication_defined
-
     attribute :status do
       unless model.active? || model.invited?
         # New users may only have these two statuses
         errors.add :status, :invalid_on_create
       end
     end
+
+    validate :user_allowed_to_add
+
+    validate :authentication_defined
 
     private
 
