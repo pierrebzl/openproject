@@ -1,4 +1,5 @@
 #-- encoding: UTF-8
+
 #-- copyright
 # OpenProject is a project management system.
 # Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
@@ -216,11 +217,11 @@ module API
                               :user,
                               project: :work_package_custom_fields]
 
-        private
-
         def _type
           'Query'
         end
+
+        private
 
         def allowed_to?(action)
           @policy ||= QueryPolicy.new(current_user)
