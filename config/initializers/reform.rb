@@ -28,54 +28,20 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-require 'model_contract'
+require "reform/form/active_model/validations"
 
-module Relations
-  class BaseContract < ::ModelContract
-    attribute :relation_type
+Reform::Form.class_eval do
+  include Reform::Form::ActiveModel::Validations
+end
 
-    attribute :delay
-    attribute :description
+Reform::Contract.class_eval do
+  include Reform::Form::ActiveModel::Validations
+end
 
-    attribute :from
-    attribute :to
+require 'reform/contract'
 
-    validate :from do
-      errors.add :from, :error_not_found unless visible_work_packages.exists? model.from_id
-    end
+require 'open_project/patches/reform'
 
-    validate :to do
-      errors.add :to, :error_not_found unless visible_work_packages.exists? model.to_id
-    end
-
-    validate :manage_relations_permission?
-
-    attr_reader :user
-
-    def self.model
-      Relation
-    end
-
-    def initialize(relation, user)
-      super relation
-
-      @user = user
-    end
-
-    private
-
-    def manage_relations_permission?
-      if !manage_relations?
-        errors.add :base, :error_unauthorized
-      end
-    end
-
-    def visible_work_packages
-      ::WorkPackage.visible(user)
-    end
-
-    def manage_relations?
-      user.allowed_to? :manage_work_package_relations, model.from.project
-    end
-  end
+class Reform::Form::ActiveModel::Errors
+  prepend OpenProject::Patches::Reform
 end

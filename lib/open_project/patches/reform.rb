@@ -28,54 +28,27 @@
 # See doc/COPYRIGHT.rdoc for more details.
 #++
 
-require 'model_contract'
+module OpenProject
+  module Patches
+    module Reform
+      def merge!(errors, prefix)
+        @store_new_symbols = false
+        super(errors, prefix)
+        @store_new_symbols = true
 
-module Relations
-  class BaseContract < ::ModelContract
-    attribute :relation_type
+        errors.keys.each do |attribute|
+          errors.symbols_and_messages_for(attribute).each do |symbol, full_message, partial_message|
+            symbols_and_messages = writable_symbols_and_messages_for(attribute)
+            next if symbols_and_messages && symbols_and_messages.any? do |sam|
+              sam[0] === symbol &&
+              sam[1] === full_message &&
+              sam[2] === partial_message
+            end
 
-    attribute :delay
-    attribute :description
-
-    attribute :from
-    attribute :to
-
-    validate :from do
-      errors.add :from, :error_not_found unless visible_work_packages.exists? model.from_id
-    end
-
-    validate :to do
-      errors.add :to, :error_not_found unless visible_work_packages.exists? model.to_id
-    end
-
-    validate :manage_relations_permission?
-
-    attr_reader :user
-
-    def self.model
-      Relation
-    end
-
-    def initialize(relation, user)
-      super relation
-
-      @user = user
-    end
-
-    private
-
-    def manage_relations_permission?
-      if !manage_relations?
-        errors.add :base, :error_unauthorized
+            symbols_and_messages << [symbol, full_message, partial_message]
+          end
+        end
       end
-    end
-
-    def visible_work_packages
-      ::WorkPackage.visible(user)
-    end
-
-    def manage_relations?
-      user.allowed_to? :manage_work_package_relations, model.from.project
     end
   end
 end
