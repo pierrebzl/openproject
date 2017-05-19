@@ -79,9 +79,9 @@ describe RepositoriesController, type: :controller do
 
     context 'with #edit' do
       before do
-        xhr :get,
-            :edit,
-            params: { scm_vendor: 'subversion' }
+        get :edit,
+            params: { scm_vendor: 'subversion' },
+            xhr: true
       end
 
       it_behaves_like 'successful settings response'
@@ -90,7 +90,7 @@ describe RepositoriesController, type: :controller do
     context 'with #destroy' do
       before do
         allow(repository).to receive(:destroy).and_return(true)
-        xhr :delete, :destroy
+        delete :destroy, xhr: true
       end
 
       it 'redirects to settings' do
@@ -100,7 +100,7 @@ describe RepositoriesController, type: :controller do
 
     context 'with #update' do
       before do
-        xhr :put, :update
+        put :update, xhr: true
       end
 
       it_behaves_like 'successful settings response'
@@ -108,13 +108,13 @@ describe RepositoriesController, type: :controller do
 
     context 'with #create' do
       before do
-        xhr :post,
-            :create,
-            params: {
-              scm_vendor: 'subversion',
-              scm_type: 'local',
-              url: 'file:///tmp/repo.svn/'
-            }
+        post :create,
+             params: {
+               scm_vendor: 'subversion',
+               scm_type: 'local',
+               url: 'file:///tmp/repo.svn/'
+             },
+             xhr: true
       end
 
       it 'renders a JS redirect' do
